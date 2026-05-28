@@ -233,6 +233,7 @@ Edit `firmware_prod/src/main.c`:
 - [ ] Button handling (A/B/C/D/WiFi — GPIO 36/34/18/32/1)
 - [ ] Auto-stop irrigation on rain detection (rain sensor ADC threshold)
 - [ ] Deep sleep / battery power management (`tkl_cpu_sleep_mode_set`)
+- [ ] BLE provisioning for WiFi SSID/password, MQTT host/port/topic (instead of hardcoded values)
 
 ## References
 
