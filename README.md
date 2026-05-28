@@ -224,7 +224,6 @@ Edit `firmware_prod/src/main.c`:
 
 | File | Description |
 |------|-------------|
-| `stock-firmware.bin` | Original factory firmware dump (4MB) |
 | `firmware_prod/` | TuyaOpen SDK production MQTT firmware |
 | `Dockerfile.build` | Docker build environment for BK7236/T3 (includes TuyaOpen SDK) |
 
