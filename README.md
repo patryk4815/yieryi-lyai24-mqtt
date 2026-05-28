@@ -175,7 +175,6 @@ tyutool_cli write -d t3 -p /dev/tty.usbserial-210 -f backup.bin
 
 - **UART0** (TX0=P10, RX0=P11) — **flashing only** via `tyutool_cli`
 - **UART1** (TX1=P0 pin 7, RX1=P1 pin 6) — **log output** at 460800 baud
-- Note: P0 (UART1 TX) is not connected on PCB — solder wire to read logs
 - UART0 and UART1 are different ports — you need two separate connections to flash and read logs simultaneously
 
 ![PCB UART pinout](screens/1.png)
