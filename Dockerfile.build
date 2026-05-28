@@ -1,0 +1,19 @@
+FROM ubuntu:26.04
+
+RUN apt-get update && apt-get install -y \
+    git python3 python3-pip python3-venv \
+    cmake ninja-build make wget \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN ln -s /usr/bin/python3 /usr/bin/python
+
+# Clone TuyaOpen SDK at pinned commit
+ARG TUYAOPEN_COMMIT=98ec4f6164141c5a44791c26c4a842d081e7d4a9
+WORKDIR /tuyaopen
+RUN git clone https://github.com/tuya/TuyaOpen.git . && \
+    git checkout ${TUYAOPEN_COMMIT}
+
+# Install Python deps
+RUN python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
+
+ENTRYPOINT ["/tuyaopen/.venv/bin/python", "/tuyaopen/tos.py"]
