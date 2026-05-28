@@ -1,5 +1,7 @@
 # Yieryi Solar WiFi Smart Water Timer 4 Zone (HH-LYAI-24)
 
+![looks](screens/2.png)
+
 Reverse engineering and custom firmware for the Yieryi 4-zone irrigation controller.
 
 **Goal:** Replace Tuya cloud firmware with local MQTT control.
@@ -142,20 +144,17 @@ cd yieryi-LYAI-24
 docker build --platform linux/amd64 -f Dockerfile.build -t tuyaopen-build-x86 .
 
 # Build firmware
-mkdir -p output
 docker run --rm --platform linux/amd64 --entrypoint sh \
-  -v $(pwd)/output:/output \
   -v $(pwd)/firmware_prod:/tuyaopen/apps/irrigation_prod \
   -w /tuyaopen/apps/irrigation_prod \
   tuyaopen-build-x86 -c "
     rm -rf .build && \
     /tuyaopen/.venv/bin/python /tuyaopen/tos.py config choice -c T3.config && \
-    /tuyaopen/.venv/bin/python /tuyaopen/tos.py build && \
-    cp \$(find /tuyaopen -name 'all-app.bin' -path '*/tuya_build/*' | head -1) /output/
+    /tuyaopen/.venv/bin/python /tuyaopen/tos.py build
   "
 ```
 
-Output: `output/all-app.bin`
+Output: `firmware_prod/dist/irrigation_prod_1.0.0/irrigation_prod_QIO_1.0.0.bin`
 
 ### Flash
 
@@ -164,18 +163,22 @@ Output: `output/all-app.bin`
 tyutool_cli read -d t3 -p /dev/tty.usbserial-210 -s 0x0 -l 0x400000 -f backup.bin
 
 # Flash firmware
-tyutool_cli write -d t3 -p /dev/tty.usbserial-210 -f output/all-app.bin
+tyutool_cli write -d t3 -p /dev/tty.usbserial-210 -f firmware_prod/dist/irrigation_prod_1.0.0/irrigation_prod_QIO_1.0.0.bin
 
 # Restore original firmware
 tyutool_cli write -d t3 -p /dev/tty.usbserial-210 -f backup.bin
 ```
 
+![flashing](screens/flashing.png)
+
 ### UART
 
-- **Flash port:** UART0 (TX0=P10, RX0=P11)
-- **Log port:** UART1 (TX1=P0 pin 7, RX1=P1 pin 6) at 460800 baud
-- Note: P0 (UART1 TX / log output) is not connected on PCB — solder wire to read logs
-- `CONFIG_UART_PRINT_PORT=1` does NOT work — logs always on UART1 at 460800
+- **UART0** (TX0=P10, RX0=P11) — **flashing only** via `tyutool_cli`
+- **UART1** (TX1=P0 pin 7, RX1=P1 pin 6) — **log output** at 460800 baud
+- Note: P0 (UART1 TX) is not connected on PCB — solder wire to read logs
+- UART0 and UART1 are different ports — you need two separate connections to flash and read logs simultaneously
+
+![PCB UART pinout](screens/1.png)
 
 ## Custom MQTT Firmware
 
@@ -225,6 +228,12 @@ Edit `firmware_prod/src/main.c`:
 | `stock-firmware.bin` | Original factory firmware dump (4MB) |
 | `firmware_prod/` | TuyaOpen SDK production MQTT firmware |
 | `Dockerfile.build` | Docker build environment for BK7236/T3 (includes TuyaOpen SDK) |
+
+## TODO
+
+- [ ] Button handling (A/B/C/D/WiFi — GPIO 36/34/18/32/1)
+- [ ] Auto-stop irrigation on rain detection (rain sensor ADC threshold)
+- [ ] Deep sleep / battery power management (`tkl_cpu_sleep_mode_set`)
 
 ## References
 
